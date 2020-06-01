@@ -1,40 +1,58 @@
+import axios from "axios";
+
 class Api {
   static headers() {
     return {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'dataType': 'json',
-    }
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      dataType: "json",
+    };
   }
 
   static get(route) {
-    return this.xhr(route, null, 'GET');
+    return this.xhr(route, null, "GET");
   }
 
   static put(route, params) {
-    return this.xhr(route, params, 'PUT')
+    return this.xhr(route, params, "PUT");
   }
 
   static post(route, params) {
-    return this.xhr(route, params, 'POST')
+    return this.xhr(route, params, "POST");
   }
 
   static delete(route, params) {
-    return this.xhr(route, params, 'DELETE')
+    return this.xhr(route, params, "DELETE");
   }
 
   static xhr(route, params, verb) {
-    const host = 'http://www.recipepuppy.com'
-    const url = `${host}${route}`
-    let options = Object.assign({ method: verb }, params ? { body: JSON.stringify(params) } : null);
-    options.headers = Api.headers()
-    return fetch(url, options).then(resp => {
-      let json = resp.json();
-      if (resp.ok) {
-        return json
-      }
-      return json.then(err => { throw err });
-    }).then(json => json.results);
+    const host = "http://www.recipepuppy.com";
+    const url = `${host}${route}`;
+    let options = Object.assign(
+      { method: verb },
+      params ? { body: JSON.stringify(params) } : null,
+    );
+    options.headers = Api.headers();
+    return axios({
+      method: options.method,
+      url: url,
+      headers: options.headers,
+      data: options.body,
+      // specifies a cancel token that can be used to cancel the request
+      cancelToken: cancelToken,
+      // timeout after a 15 seconds
+      timeout: 15000,
+    })
+      .then((resp) => {
+        let json = resp.json();
+        if (resp.ok) {
+          return json;
+        }
+        return json.then((err) => {
+          throw err;
+        });
+      })
+      .then((json) => json.results);
   }
 }
-export default 
+export default Api;
